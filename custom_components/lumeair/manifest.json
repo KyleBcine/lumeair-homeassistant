@@ -1,6 +1,7 @@
 {
   "domain": "lumeair",
   "name": "LumeAir",
+  "categories": ["sensors.air_quality"],
   "codeowners": ["@KyleBcine"],
   "config_flow": true,
   "documentation": "https://github.com/KyleBcine/lumeair-homeassistant",
