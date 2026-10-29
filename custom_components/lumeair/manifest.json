@@ -1,0 +1,13 @@
+{
+  "domain": "lumeair",
+  "name": "LumeAir",
+  "codeowners": ["@KyleBcine"],
+  "config_flow": true,
+  "documentation": "https://github.com/KyleBcine/lumeair-homeassistant",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/KyleBcine/lumeair-homeassistant/issues",
+  "requirements": [],
+  "version": "0.1.0",
+  "zeroconf": ["_airsense._tcp.local."]
+}

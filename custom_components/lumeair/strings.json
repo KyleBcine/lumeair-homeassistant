@@ -1,0 +1,85 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "pair": {
+        "title": "Pair {name}",
+        "description": "Paste this sensor's pair code. In the LumeAir app, go to Settings › Home Assistant and tap Copy pair code next to the sensor.",
+        "data": {
+          "pair_code": "Pair code"
+        },
+        "data_description": {
+          "pair_code": "The pair code gives full access to the sensor. Home Assistant only reads it, on your home network."
+        }
+      },
+      "user": {
+        "title": "Add a LumeAir sensor",
+        "description": "Paste the sensor's pair code. In the LumeAir app, go to Settings › Home Assistant and tap Copy pair code next to the sensor.",
+        "data": {
+          "pair_code": "Pair code"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Pair {name} again",
+        "description": "{name} no longer accepts the pair code Home Assistant has, usually because it was set up again. Paste its current pair code from the LumeAir app.",
+        "data": {
+          "pair_code": "Pair code"
+        }
+      }
+    },
+    "error": {
+      "invalid_code": "That isn't a LumeAir pair code. Copy it again from the app.",
+      "wrong_sensor": "That pair code is for a different sensor.",
+      "invalid_auth": "The sensor didn't accept this pair code. Copy the current one from the app.",
+      "cannot_connect": "Couldn't reach the sensor. Check that it's plugged in and on the same network as Home Assistant."
+    },
+    "abort": {
+      "already_configured": "This sensor is already added.",
+      "reauth_successful": "Paired again.",
+      "not_lumeair": "This isn't a LumeAir sensor."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "air_quality": {
+        "name": "Air quality",
+        "state": {
+          "good": "Good",
+          "moderate": "Moderate",
+          "poor": "Poor",
+          "unhealthy": "Unhealthy",
+          "very_unhealthy": "Very unhealthy",
+          "hazardous": "Hazardous"
+        }
+      },
+      "voc_index": {
+        "name": "VOC index"
+      },
+      "wifi_signal": {
+        "name": "Wi-Fi signal"
+      }
+    },
+    "binary_sensor": {
+      "co2_alert": {
+        "name": "CO₂ alert"
+      },
+      "pm25_alert": {
+        "name": "PM2.5 alert"
+      },
+      "pm10_alert": {
+        "name": "PM10 alert"
+      },
+      "voc_alert": {
+        "name": "VOC alert"
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_auth": {
+      "message": "The sensor no longer accepts its pair code."
+    },
+    "cannot_connect": {
+      "message": "Couldn't reach the sensor: {error}"
+    }
+  }
+}
