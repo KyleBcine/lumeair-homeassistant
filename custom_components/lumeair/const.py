@@ -6,7 +6,8 @@ DOMAIN = "lumeair"
 
 CONF_DEVICE_ID = "device_id"
 
-# The sensor measures CO2 every 30 s and particles every 5 min.
+# The sensor's SEN66 measures every second; every 30 s is plenty for Home
+# Assistant's history and automations.
 SCAN_INTERVAL = timedelta(seconds=30)
 
 # Metrics the sensor alerts on, as /alerts names them.

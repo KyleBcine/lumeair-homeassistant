@@ -40,8 +40,8 @@ LumeAir** and paste its pair code; the code includes its address.
 |---|---|
 | Air quality | Good, Moderate, Poor, Unhealthy, Very unhealthy or Hazardous: the worst of CO₂, particles and VOC, rated the same way as the app |
 | Carbon dioxide | ppm |
-| PM1, PM2.5, PM10 | µg/m³; unknown until the particle sensor's first reading (it measures every 5 minutes) |
-| VOC index | Relative to the room's usual air, where about 100 is normal; unknown while the sensor learns, for a few minutes after it starts |
+| PM1, PM2.5, PM10 | µg/m³; unknown for the first few seconds after the sensor starts |
+| VOC index | Relative to the room's usual air, where about 100 is normal; unknown for about a minute after the sensor starts |
 | Temperature, Humidity, Atmospheric pressure | |
 | CO₂ alert, PM2.5 alert, PM10 alert, VOC alert | On while the reading is above your alert threshold. The thresholds are the ones set in the LumeAir app (sensor firmware 0.2.0 or later) |
 | Wi-Fi signal | Diagnostic, disabled by default |
