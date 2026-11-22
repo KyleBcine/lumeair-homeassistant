@@ -12,7 +12,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .api import CannotConnect, InvalidAuth, LumeAirClient
-from .const import CONF_DEVICE_ID, DOMAIN
+from .const import CONF_DEVICE_ID, CONF_SIGNS, DOMAIN
 from .pair_code import PairCode, decode_pair_code
 
 CONF_PAIR_CODE = "pair_code"
@@ -30,14 +30,22 @@ class LumeAirConfigFlow(ConfigFlow, domain=DOMAIN):
         self._host: str | None = None
         self._port = 80
         self._name: str | None = None
+        # Whether the sensor last checked takes signed requests.
+        self._signs = False
 
     async def _check(
-        self, host: str, port: int, code: PairCode, errors: dict[str, str]
+        self,
+        host: str,
+        port: int,
+        code: PairCode,
+        errors: dict[str, str],
+        *,
+        signs: bool = False,
     ) -> str | None:
         """Read the sensor at host:port with code's key. Returns its device
         ID, or None after adding to errors."""
         client = LumeAirClient(
-            async_get_clientsession(self.hass), host, port, code.token
+            async_get_clientsession(self.hass), host, port, code.token, signs=signs
         )
         try:
             latest = await client.latest()
@@ -47,6 +55,7 @@ class LumeAirConfigFlow(ConfigFlow, domain=DOMAIN):
         except CannotConnect:
             errors["base"] = "cannot_connect"
             return None
+        self._signs = client.signs
         device_id = latest.get("device_id")
         if not isinstance(device_id, str) or not device_id:
             errors["base"] = "cannot_connect"
@@ -96,6 +105,7 @@ class LumeAirConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_PORT: self._port,
                         CONF_TOKEN: code.token,
                         CONF_DEVICE_ID: self.unique_id,
+                        CONF_SIGNS: self._signs,
                     },
                 )
         return self.async_show_form(
@@ -130,6 +140,7 @@ class LumeAirConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_PORT: code.port,
                         CONF_TOKEN: code.token,
                         CONF_DEVICE_ID: device_id,
+                        CONF_SIGNS: self._signs,
                     },
                 )
         return self.async_show_form(
@@ -157,10 +168,15 @@ class LumeAirConfigFlow(ConfigFlow, domain=DOMAIN):
             ):
                 errors["base"] = "wrong_sensor"
             elif await self._check(
-                entry.data[CONF_HOST], entry.data[CONF_PORT], code, errors
+                entry.data[CONF_HOST],
+                entry.data[CONF_PORT],
+                code,
+                errors,
+                signs=entry.data.get(CONF_SIGNS, False),
             ):
                 return self.async_update_reload_and_abort(
-                    entry, data_updates={CONF_TOKEN: code.token}
+                    entry,
+                    data_updates={CONF_TOKEN: code.token, CONF_SIGNS: self._signs},
                 )
         return self.async_show_form(
             step_id="reauth_confirm",
