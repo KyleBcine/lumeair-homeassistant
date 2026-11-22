@@ -53,6 +53,10 @@ fan when the CO₂ alert turns on.
 
 - **Pair code:** it holds the sensor's access key, which gives full access
   to the sensor. Home Assistant only reads it. Keep it private.
+- **The key stays private:** with sensor firmware 0.7.0 or later, Home
+  Assistant signs each request with the key instead of sending it, so
+  nobody watching your network can copy it. Older firmware still gets the
+  key itself, until it's updated.
 - **New address:** if your router gives the sensor a new IP address, Home
   Assistant follows it automatically.
 - **Sensor set up again:** a sensor that's set up again in the app gets a new

@@ -13,7 +13,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import CannotConnect, InvalidAuth, LumeAirClient
-from .const import CONF_DEVICE_ID, DOMAIN, SCAN_INTERVAL
+from .const import CONF_DEVICE_ID, CONF_SIGNS, DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,7 +64,17 @@ class LumeAirCoordinator(DataUpdateCoordinator[LumeAirData]):
                 translation_placeholders={"error": str(err)},
             ) from err
         self._update_firmware_version(latest.get("fw_version"))
+        self._remember_signing()
         return LumeAirData(latest=latest, active_alerts=alerts, rssi=rssi)
+
+    def _remember_signing(self) -> None:
+        """Once the sensor takes signed requests (after a firmware update),
+        keep that across restarts, so it is never sent the plain key again."""
+        entry = self.config_entry
+        if self.client.signs and not entry.data.get(CONF_SIGNS):
+            self.hass.config_entries.async_update_entry(
+                entry, data={**entry.data, CONF_SIGNS: True}
+            )
 
     def _update_firmware_version(self, version: object) -> None:
         """Keep the device page's firmware version current after an update."""

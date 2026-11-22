@@ -14,7 +14,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
 )
 
-from custom_components.lumeair.const import CONF_DEVICE_ID, DOMAIN
+from custom_components.lumeair.const import CONF_DEVICE_ID, CONF_SIGNS, DOMAIN
 
 from .conftest import DEVICE_ID, HOST, TOKEN, mock_sensor, pair_code
 
@@ -69,6 +69,7 @@ async def test_discovered_sensor_is_paired(
         "port": 80,
         CONF_TOKEN: TOKEN,
         CONF_DEVICE_ID: DEVICE_ID,
+        CONF_SIGNS: True,
     }
 
 

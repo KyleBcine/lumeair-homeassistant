@@ -15,7 +15,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMocker,
 )
 
-from custom_components.lumeair.const import DOMAIN, SCAN_INTERVAL
+from custom_components.lumeair.const import CONF_SIGNS, DOMAIN, SCAN_INTERVAL
 from custom_components.lumeair.diagnostics import (
     async_get_config_entry_diagnostics,
 )
@@ -35,9 +35,12 @@ async def test_readings_and_device(
     config_entry: MockConfigEntry,
 ) -> None:
     """Every reading appears on one device named after the room."""
-    mock_sensor(aioclient_mock, active=["co2"])
+    sensor = mock_sensor(aioclient_mock, active=["co2"])
     await setup(hass, config_entry)
     assert config_entry.state is ConfigEntryState.LOADED
+    # Signed, and remembered: never the plain key, even after a restart.
+    assert sensor.plain_keys == 0
+    assert config_entry.data[CONF_SIGNS] is True
 
     expected = {
         "sensor.bedroom_air_quality": "good",
@@ -142,6 +145,7 @@ async def test_older_firmware_without_alerts(
     """Firmware before 0.2.0 has no /alerts: readings only."""
     mock_sensor(aioclient_mock)
     aioclient_mock.clear_requests()
+    aioclient_mock.get("http://192.168.4.45:80/auth/clock", status=404)
     aioclient_mock.get("http://192.168.4.45:80/latest", json=LATEST)
     aioclient_mock.get("http://192.168.4.45:80/alerts?limit=1", status=404)
     aioclient_mock.get("http://192.168.4.45:80/diag/wifi", status=404)
