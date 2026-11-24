@@ -48,6 +48,8 @@ def test_bad_pair_codes(raw: str) -> None:
         ({"pm10": 54}, "good"),
         ({"pm10": 254}, "poor"),
         ({"pm10": 424}, "very_unhealthy"),
+        # NOx and PM4 don't count, as in the app's default.
+        ({"co2": 600, "nox": 400, "pm4_0": 300}, "good"),
         ({"voc": 119}, "good"),
         ({"voc": 120}, "moderate"),
         ({"voc": 350}, "unhealthy"),

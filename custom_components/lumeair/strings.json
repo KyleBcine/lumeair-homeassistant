@@ -55,6 +55,9 @@
       "voc_index": {
         "name": "VOC index"
       },
+      "nox_index": {
+        "name": "NOx index"
+      },
       "wifi_signal": {
         "name": "Wi-Fi signal"
       }
