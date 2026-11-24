@@ -47,8 +47,10 @@ async def test_readings_and_device(
         "sensor.bedroom_carbon_dioxide": "640",
         "sensor.bedroom_pm1": "3",
         "sensor.bedroom_pm2_5": "5",
+        "sensor.bedroom_pm4": "6",
         "sensor.bedroom_pm10": "6",
         "sensor.bedroom_voc_index": "101",
+        "sensor.bedroom_nox_index": "1",
         "sensor.bedroom_temperature": "21.43",
         "sensor.bedroom_humidity": "44.1",
         "sensor.bedroom_atmospheric_pressure": "1013.25",
@@ -83,14 +85,18 @@ async def test_not_yet_measured_is_unknown(
             "voc": 0,
             "pm1_0": None,
             "pm2_5": None,
+            "pm4_0": None,
             "pm10": None,
+            "nox": None,
         },
     )
     await setup(hass, config_entry)
     for entity_id in (
         "sensor.bedroom_carbon_dioxide",
         "sensor.bedroom_voc_index",
+        "sensor.bedroom_nox_index",
         "sensor.bedroom_pm2_5",
+        "sensor.bedroom_pm4",
         "sensor.bedroom_air_quality",
     ):
         assert hass.states.get(entity_id).state == STATE_UNKNOWN, entity_id

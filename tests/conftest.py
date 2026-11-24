@@ -47,6 +47,9 @@ LATEST: dict[str, Any] = {
     "temp": 21.43,
     "humidity": 44.1,
     "pressure_hpa": 1013.25,
+    "model": "sen66",
+    "pm4_0": 6,
+    "nox": 1,
 }
 
 

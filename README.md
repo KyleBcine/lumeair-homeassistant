@@ -1,8 +1,8 @@
 # LumeAir for Home Assistant
 
 See your LumeAir air-quality sensors in Home Assistant: CO₂, particles
-(PM1, PM2.5, PM10), VOC index, temperature, humidity, pressure, an overall
-air-quality rating, and the sensor's own alerts.
+(PM1, PM2.5, PM4, PM10), VOC and NOx indexes, temperature, humidity,
+pressure, an overall air-quality rating, and the sensor's own alerts.
 
 Everything stays on your home network. Home Assistant reads each sensor
 directly every 30 seconds; nothing goes through the internet or a LumeAir
@@ -40,8 +40,9 @@ LumeAir** and paste its pair code; the code includes its address.
 |---|---|
 | Air quality | Good, Moderate, Poor, Unhealthy, Very unhealthy or Hazardous: the worst of CO₂, particles and VOC, rated the same way as the app |
 | Carbon dioxide | ppm |
-| PM1, PM2.5, PM10 | µg/m³; unknown for the first few seconds after the sensor starts |
+| PM1, PM2.5, PM4, PM10 | µg/m³; unknown for the first few seconds after the sensor starts |
 | VOC index | Relative to the room's usual air, where about 100 is normal; unknown for about a minute after the sensor starts |
+| NOx index | Nitrogen oxides (gas stoves, heaters, traffic), relative to the room's usual air, where 1 is normal; unknown for the first minutes after the sensor starts. Not part of the air-quality rating, as in the app by default |
 | Temperature, Humidity, Atmospheric pressure | |
 | CO₂ alert, PM2.5 alert, PM10 alert, VOC alert | On while the reading is above your alert threshold. The thresholds are the ones set in the LumeAir app (sensor firmware 0.2.0 or later) |
 | Wi-Fi signal | Diagnostic, disabled by default |

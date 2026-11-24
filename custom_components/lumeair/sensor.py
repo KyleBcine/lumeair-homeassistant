@@ -1,4 +1,4 @@
-"""LumeAir readings: CO2, particles, VOC, comfort and the overall rating."""
+"""LumeAir readings: CO2, particles, VOC, NOx, comfort and the overall rating."""
 
 from __future__ import annotations
 
@@ -97,6 +97,14 @@ SENSORS: tuple[LumeAirSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=_pollutant("pm2_5"),
     ),
+    # Firmware 0.6.0+ (the SEN66).
+    LumeAirSensorDescription(
+        key="pm4",
+        device_class=SensorDeviceClass.PM4,
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_number("pm4_0"),
+    ),
     LumeAirSensorDescription(
         key="pm10",
         device_class=SensorDeviceClass.PM10,
@@ -111,6 +119,15 @@ SENSORS: tuple[LumeAirSensorDescription, ...] = (
         translation_key="voc_index",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=_pollutant("voc"),
+    ),
+    # Sensirion's NOx index, 1 to 500, where 1 is the room's usual air. Like
+    # VOC an index, not a concentration (so not NITROGEN_DIOXIDE). The
+    # sensor reports null while the NOx algorithm starts up. Firmware 0.6.0+.
+    LumeAirSensorDescription(
+        key="nox_index",
+        translation_key="nox_index",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_number("nox"),
     ),
     LumeAirSensorDescription(
         key="temperature",
