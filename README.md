@@ -46,7 +46,7 @@ LumeAir** and paste its pair code; the code includes its address.
 | VOC index | Relative to the room's usual air, where about 100 is normal; unknown for about a minute after the sensor starts |
 | NOx index | Nitrogen oxides (gas stoves, heaters, traffic), relative to the room's usual air, where 1 is normal; unknown for the first minutes after the sensor starts. Not part of the air-quality rating, as in the app by default |
 | Temperature, Humidity, Atmospheric pressure | |
-| CO₂ alert, PM2.5 alert, PM10 alert, VOC alert | On while the reading is above your alert threshold. The thresholds are the ones set in the LumeAir app (sensor firmware 0.2.0 or later) |
+| CO₂ alert, PM2.5 alert, PM10 alert, VOC alert | On while the reading is above your alert threshold. The thresholds are the ones set in the LumeAir app |
 | Firmware | The sensor's firmware version, and the latest release; see below |
 | Wi-Fi signal | Diagnostic, disabled by default |
 
