@@ -19,9 +19,13 @@ import hashlib
 import hmac
 import secrets
 import time
-from typing import Any
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
 from aiohttp import ClientError, ClientSession, ClientTimeout
+
+if TYPE_CHECKING:
+    from .firmware import FirmwareRelease
 
 AUTH_HEADER = "X-LumeAir-Auth"
 LEGACY_AUTH_HEADER = "X-AirSense-Token"
@@ -45,6 +49,16 @@ class InvalidAuth(LumeAirError):
     """The sensor refused the access key."""
 
 
+class UpdateRefused(LumeAirError):
+    """The sensor didn't start a firmware update. code is its reason
+    (docs/PROTOCOL.md, POST /ota): not_newer, busy, on_trial, bad_signature,
+    no_memory, ..., or unsupported for firmware before 0.4.0."""
+
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.code = code
+
+
 def _b64url(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
 
@@ -55,16 +69,25 @@ def signed_text(
     boot: str,
     sensor_time: int,
     nonce: str,
-    query: list[tuple[str, str]],
+    query: Sequence[tuple[str, str]],
+    form: Sequence[tuple[str, str]] = (),
 ) -> bytes:
-    """The text a request's signature covers (docs/PROTOCOL.md)."""
+    """The text a request's signature covers (docs/PROTOCOL.md): query
+    parameters, then form fields, in the order they are sent."""
     out = bytearray(b"lumeair-request-v1\n")
     for part in (method, path, boot, str(sensor_time), nonce):
         out += part.encode() + b"\n"
-    for name, value in query:
-        raw_name = name.encode()
-        raw_value = value.encode()
-        out += b"q%d:%s%d:%s\n" % (len(raw_name), raw_name, len(raw_value), raw_value)
+    for kind, params in ((b"q", query), (b"f", form)):
+        for name, value in params:
+            raw_name = name.encode()
+            raw_value = value.encode()
+            out += b"%s%d:%s%d:%s\n" % (
+                kind,
+                len(raw_name),
+                raw_name,
+                len(raw_value),
+                raw_value,
+            )
     return bytes(out)
 
 
@@ -127,13 +150,22 @@ class LumeAirClient:
         if not isinstance(data, dict) or not self._set_clock(data):
             raise CannotConnect("/auth/clock: unexpected reply")
 
-    def _headers(self, path: str, query: list[tuple[str, str]]) -> dict[str, str]:
+    def _headers(
+        self,
+        method: str,
+        path: str,
+        query: Sequence[tuple[str, str]],
+        form: Sequence[tuple[str, str]] = (),
+    ) -> dict[str, str]:
         if self._clock is None:
             return {LEGACY_AUTH_HEADER: self._token}
         boot, sensor_time, at = self._clock
         now = sensor_time + int(time.monotonic() - at)
+        # A fresh nonce each time: the sensor refuses a POST nonce it has
+        # already seen.
         nonce = _b64url(secrets.token_bytes(16))
-        signature = sign(self._token, signed_text("GET", path, boot, now, nonce, query))
+        text = signed_text(method, path, boot, now, nonce, query, form)
+        signature = sign(self._token, text)
         return {AUTH_HEADER: f"v=1;b={boot};t={now};n={nonce};s={signature}"}
 
     async def _get(
@@ -152,7 +184,7 @@ class LumeAirClient:
                 async with self._session.get(
                     f"{self._base}{path}",
                     params=query or None,
-                    headers=self._headers(path, query),
+                    headers=self._headers("GET", path, query),
                     timeout=_TIMEOUT,
                 ) as response:
                     status = response.status
@@ -183,6 +215,67 @@ class LumeAirClient:
                 raise CannotConnect(f"{path}: unexpected reply")
             return data
         raise InvalidAuth
+
+    async def _post_form(
+        self, path: str, form: list[tuple[str, str]]
+    ) -> tuple[int, dict[str, Any] | None]:
+        """POST form fields to path; the status and the JSON reply, if any.
+        Signed like _get, with the same retry after a sensor restart."""
+        for attempt in range(2):
+            if self._clock is None and time.monotonic() >= self._legacy_until:
+                await self._sync_clock()
+            try:
+                async with self._session.post(
+                    f"{self._base}{path}",
+                    data=form,
+                    headers=self._headers("POST", path, [], form),
+                    timeout=_TIMEOUT,
+                ) as response:
+                    status = response.status
+                    try:
+                        data = await response.json(content_type=None)
+                    except ValueError:
+                        data = None
+            except (ClientError, TimeoutError) as err:
+                raise CannotConnect(f"{path}: {err}") from err
+            if status == 401:
+                if (
+                    attempt == 0
+                    and self._clock is not None
+                    and isinstance(data, dict)
+                    and data.get("error") == "stale_auth"
+                    and self._set_clock(data)
+                ):
+                    continue
+                raise InvalidAuth
+            return status, data if isinstance(data, dict) else None
+        raise InvalidAuth
+
+    async def start_update(self, release: FirmwareRelease) -> None:
+        """Asks the sensor to install release (POST /ota). The sensor checks
+        the release signature itself, then downloads and installs it."""
+        status, data = await self._post_form(
+            "/ota",
+            [
+                ("version", release.version),
+                ("url", release.url),
+                ("sha256", release.sha256),
+                ("signature", release.signature),
+            ],
+        )
+        if status == 202:
+            return
+        if status == 404:
+            raise UpdateRefused("unsupported")
+        error = data.get("error") if data else None
+        if status in (400, 409, 503) and isinstance(error, str):
+            raise UpdateRefused(error)
+        raise CannotConnect(f"/ota: HTTP {status}")
+
+    async def update_status(self) -> dict[str, Any]:
+        """The sensor's latest firmware update (GET /ota): state, progress,
+        error, running version."""
+        return await self._get("/ota") or {}
 
     async def latest(self) -> dict[str, Any]:
         """Every current reading, plus the device ID and firmware version."""

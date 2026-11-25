@@ -83,6 +83,39 @@
     },
     "cannot_connect": {
       "message": "Couldn't reach the sensor: {error}"
+    },
+    "update_no_release": {
+      "message": "There's no firmware release for this sensor right now."
+    },
+    "update_refused_not_newer": {
+      "message": "The sensor already runs this version or a newer one."
+    },
+    "update_refused_busy": {
+      "message": "The sensor is already installing an update."
+    },
+    "update_refused_on_trial": {
+      "message": "The sensor was just updated and is checking that the new version works. Try again in a few minutes."
+    },
+    "update_refused_bad_signature": {
+      "message": "The sensor refused this release: it isn't signed for this sensor."
+    },
+    "update_refused_no_memory": {
+      "message": "The sensor couldn't start the update. Restart it and try again."
+    },
+    "update_refused_unsupported": {
+      "message": "This sensor's firmware is too old to update over Wi-Fi. Update it from the LumeAir app."
+    },
+    "update_refused": {
+      "message": "The sensor didn't start the update: {reason}"
+    },
+    "update_failed": {
+      "message": "The update failed ({reason}). The sensor is still on its earlier version."
+    },
+    "update_timeout": {
+      "message": "The update didn't finish in time. The sensor stays on its earlier version if it didn't install."
+    },
+    "update_not_installed": {
+      "message": "The sensor restarted but isn't running {version}. If the new version didn't work, the sensor went back to the earlier one."
     }
   }
 }

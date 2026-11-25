@@ -10,7 +10,7 @@ from .api import LumeAirClient
 from .const import CONF_SIGNS
 from .coordinator import LumeAirConfigEntry, LumeAirCoordinator
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.UPDATE]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: LumeAirConfigEntry) -> bool:

@@ -47,6 +47,30 @@ def test_signed_text_and_signature_match_the_shared_vectors() -> None:
     assert sign(VECTOR_KEY, empty) == "IaFZ9ih-e-GYr5yYaOYHtqJDvFnwdw22UlOkmhnLhtk"
 
 
+def test_form_fields_are_signed_as_the_shared_post_vector() -> None:
+    sealed = "EBESExQVFhcYGRob4PCtd_XBUxTTNhf9EUhl3JORMywjIp6Aeg"
+    text = signed_text(
+        "POST",
+        "/config/notify",
+        VECTOR_BOOT,
+        4242,
+        VECTOR_NONCE,
+        [("_t", "1700000000000")],
+        [
+            ("provider", "ntfy"),
+            ("room", "Café Living room"),
+            ("ntfy_token_sealed", sealed),
+        ],
+    )
+    assert text == (
+        "lumeair-request-v1\nPOST\n/config/notify\n0123456789abcdef\n4242\n"
+        "AAECAwQFBgcICQoLDA0ODw\nq2:_t13:1700000000000\nf8:provider4:ntfy\n"
+        "f4:room17:Café Living room\n"
+        f"f17:ntfy_token_sealed50:{sealed}\n"
+    ).encode()
+    assert sign(VECTOR_KEY, text) == "qO9mA7d5j7BcnCFNDZ2fib6nUx1Vg1oYrAdtXrfNd80"
+
+
 def headers_sent(aioclient_mock: AiohttpClientMocker) -> list[dict[str, str]]:
     return [dict(call[3] or {}) for call in aioclient_mock.mock_calls]
 
