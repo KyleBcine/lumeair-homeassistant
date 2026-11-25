@@ -2,11 +2,13 @@
 
 See your LumeAir air-quality sensors in Home Assistant: CO₂, particles
 (PM1, PM2.5, PM4, PM10), VOC and NOx indexes, temperature, humidity,
-pressure, an overall air-quality rating, and the sensor's own alerts.
+pressure, an overall air-quality rating, and the sensor's own alerts. It
+also installs the sensors' firmware updates.
 
-Everything stays on your home network. Home Assistant reads each sensor
-directly every 30 seconds; nothing goes through the internet or a LumeAir
-server.
+Your readings stay on your home network. Home Assistant reads each sensor
+directly every 30 seconds; nothing about your sensors goes through the
+internet or a LumeAir server. The only thing it fetches from the internet is
+the public list of firmware releases (see [Firmware updates](#firmware-updates)).
 
 ## Install
 
@@ -45,10 +47,30 @@ LumeAir** and paste its pair code; the code includes its address.
 | NOx index | Nitrogen oxides (gas stoves, heaters, traffic), relative to the room's usual air, where 1 is normal; unknown for the first minutes after the sensor starts. Not part of the air-quality rating, as in the app by default |
 | Temperature, Humidity, Atmospheric pressure | |
 | CO₂ alert, PM2.5 alert, PM10 alert, VOC alert | On while the reading is above your alert threshold. The thresholds are the ones set in the LumeAir app (sensor firmware 0.2.0 or later) |
+| Firmware | The sensor's firmware version, and the latest release; see below |
 | Wi-Fi signal | Diagnostic, disabled by default |
 
 Use them in dashboards, history, and automations, for example turning on a
 fan when the CO₂ alert turns on.
+
+## Firmware updates
+
+When a new LumeAir firmware release is out, it shows under **Settings ›
+Updates** for each sensor, with what changed. Tap **Install**: Home
+Assistant shows the progress while the sensor downloads the release,
+installs it and restarts, about two minutes. Home Assistant never installs
+anything by itself, unless you set up an automation to.
+
+- **Safe to try:** the sensor checks that each release is signed by
+  LumeAir before installing it, and downloads it itself over HTTPS. If a new
+  version doesn't work, the sensor goes back to the earlier one by itself.
+- **Checking for releases:** every 6 hours Home Assistant downloads the
+  public release list from the LumeAir website,
+  `kylebcine.github.io/lumeair-site/firmware/manifest.json`. Nothing about
+  your sensors is sent.
+- **"Checking that the new version works":** right after an update, a
+  sensor won't take another one for a few minutes.
+- The LumeAir app offers the same updates; use whichever you like.
 
 ## Good to know
 
